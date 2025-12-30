@@ -1,10 +1,10 @@
 {
-  "name": "package-name",
+  "name": "md-fusion",
   "version": "0.1.0",
-  "description": "A short, honest description of what this package does.",
+  "description": "Convert notes between HTML/JSON and Markdown with YAML Frontmatter. Ideal for Notion/Obsidian migrations.",
   "type": "module",
   "bin": {
-    "package-name": "dist/cli.js"
+    "md-fusion": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "exports": {
@@ -17,18 +17,19 @@
   "engines": {
     "node": ">=18"
   },
-  "sideEffects": false,
   "scripts": {
-    "test": "node --import=tsx --test test/*.ts",
     "build": "tsup",
-    "prepublishOnly": "npm run build && npm test",
+    "prepublishOnly": "npm run build",
     "lint": "xo"
   },
   "keywords": [
-    "node",
-    "cli",
-    "npm",
-    "utility"
+    "markdown",
+    "converter",
+    "html-to-markdown",
+    "frontmatter",
+    "notion",
+    "obsidian",
+    "yaml"
   ],
   "author": {
     "name": "mgks",
@@ -37,24 +38,33 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgks/package-name.git"
+    "url": "git+https://github.com/mgks/md-fusion.git"
   },
   "bugs": {
-    "url": "https://github.com/mgks/package-name/issues"
+    "url": "https://github.com/mgks/md-fusion/issues"
   },
-  "homepage": "https://github.com/mgks/package-name#readme",
+  "homepage": "https://github.com/mgks/md-fusion#readme",
   "funding": "https://github.com/sponsors/mgks",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "dayjs": "^1.11.10",
+    "gray-matter": "^4.0.3",
+    "marked": "^11.1.1",
+    "turndown": "^7.1.2"
+  },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "tsup": "^8.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0",
+    "@types/node": "^20.10.0",
+    "@types/turndown": "^5.0.4",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
     "xo": "^0.56.0"
   },
   "xo": {
     "prettier": true,
     "rules": {
-      "unicorn/filename-case": "off"
+      "unicorn/filename-case": "off",
+      "import/extensions": "off"
     }
   }
 }
