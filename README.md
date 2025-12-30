@@ -1,36 +1,87 @@
-# package-name (Node.js Package Template 📦)
+# md-fusion
 
-Short description of the pain this package solves - A practical template for building and publishing Node.js packages and CLIs to npm, with GitHub Actions, OIDC publishing, and sane defaults.
+> Convert notes between HTML/JSON and Markdown with YAML Frontmatter.
 
-  <a href="https://www.npmjs.com/package/package-name"><img src="https://img.shields.io/npm/v/package-name.svg?style=flat-square&color=007acc" alt="npm version"></a>
-  <a href="https://bundlephobia.com/package/package-name"><img src="https://img.shields.io/bundlephobia/minzip/package-name?style=flat-square" alt="size"></a>
-  <a href="https://www.npmjs.com/package/package-name"><img src="https://img.shields.io/npm/dt/package-name.svg?style=flat-square&color=success" alt="npm downloads"></a>
-  <a href="https://github.com/mgks/package-name/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mgks/package-name.svg?style=flat-square&color=blue" alt="license"></a>
-  <a href="https://github.com/mgks/package-name/stargazers"><img src="https://img.shields.io/github/stars/mgks/package-name?style=flat-square&logo=github" alt="stars"></a>
+<a href="https://www.npmjs.com/package/md-fusion"><img src="https://img.shields.io/npm/v/md-fusion.svg?style=flat-square&color=007acc" alt="npm version"></a>
+<a href="https://bundlephobia.com/package/md-fusion"><img src="https://img.shields.io/bundlephobia/minzip/md-fusion?style=flat-square" alt="size"></a>
+<a href="https://www.npmjs.com/package/md-fusion"><img src="https://img.shields.io/npm/dt/md-fusion.svg?style=flat-square&color=success" alt="npm downloads"></a>
+<a href="https://github.com/mgks/md-fusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mgks/md-fusion.svg?style=flat-square&color=blue" alt="license"></a>
+<a href="https://github.com/mgks/md-fusion/stargazers"><img src="https://img.shields.io/github/stars/mgks/md-fusion?style=flat-square&logo=github" alt="stars"></a>
 
-**The Problem:** You currently do X manually or write ugly bash scripts.
-**The Solution:** This does it in one line.
+A lightweight Node.js library and CLI tool to bridge the gap between structured note data (JSON) and static file systems (Markdown). It seamlessly handles **YAML Frontmatter**, making it perfect for migrating content to **Obsidian**, **Notion**, or **Jekyll/Hugo** sites.
 
-## Install
-
-```bash
-npm install package-name
-```
-
-## Usage
-
-### CLI
+## 📦 Installation
 
 ```bash
-npx package-name --flag
+# Global Install (CLI)
+npm install -g md-fusion
+
+# Project Install (Library)
+npm install md-fusion
 ```
 
-### API
+## 💻 CLI Usage
 
-```js
-import { functionName } from 'package-name';
+**Convert JSON Notes to Markdown Files**
+Perfect for importing into Obsidian or Dendron.
+```bash
+md-fusion to-md notes.json -o ./my-vault
+# Creates: ./my-vault/note_title.md, ./my-vault/another_note.md
+```
 
-functionName('input');
+**Parse Markdown to JSON**
+Useful for processing existing Markdown files.
+```bash
+md-fusion from-md ./my-vault/daily-note.md
+# Output: JSON object to console
+```
+
+## 🔧 API Usage
+
+```javascript
+import { toMarkdown, fromMarkdown } from 'md-fusion';
+
+const myNote = {
+  title: "Project Idea",
+  content: "<h1>Big Plans</h1><p>Do the thing.</p>",
+  tags: ["ideas", "work"],
+  created: "2023-10-27T10:00:00Z"
+};
+
+// 1. Convert Object to Markdown string with Frontmatter
+const md = toMarkdown(myNote);
+console.log(md);
+/* Output:
+---
+title: Project Idea
+tags:
+  - ideas
+  - work
+created: 2023-10-27T10:00:00Z
+---
+# Big Plans
+
+Do the thing.
+*/
+
+// 2. Parse Markdown string back to Object
+const noteObj = fromMarkdown(md);
+console.log(noteObj.title); // "Project Idea"
+```
+
+## 🧩 Input/Output Format
+
+Expects (or produces) a standard JSON Note object:
+
+```typescript
+interface Note {
+  title: string;
+  content: string; // HTML
+  tags: string[];
+  created: string; // ISO 8601
+  updated?: string; 
+  [key: string]: any; // Any extra JSON keys become YAML Frontmatter
+}
 ```
 
 ## License
