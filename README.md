@@ -1,16 +1,17 @@
 # md-fusion
 
-> Convert notes between HTML/JSON and Markdown with YAML Frontmatter.
+**Convert notes between HTML/JSON and Markdown with YAML Frontmatter.**
 
-<a href="https://www.npmjs.com/package/md-fusion"><img src="https://img.shields.io/npm/v/md-fusion.svg?style=flat-square&color=007acc" alt="npm version"></a>
-<a href="https://bundlephobia.com/package/md-fusion"><img src="https://img.shields.io/bundlephobia/minzip/md-fusion?style=flat-square" alt="size"></a>
-<a href="https://www.npmjs.com/package/md-fusion"><img src="https://img.shields.io/npm/dt/md-fusion.svg?style=flat-square&color=success" alt="npm downloads"></a>
-<a href="https://github.com/mgks/md-fusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mgks/md-fusion.svg?style=flat-square&color=blue" alt="license"></a>
-<a href="https://github.com/mgks/md-fusion/stargazers"><img src="https://img.shields.io/github/stars/mgks/md-fusion?style=flat-square&logo=github" alt="stars"></a>
+<p>
+  <img src="https://img.shields.io/npm/v/md-fusion.svg?style=flat-square&color=d25353" alt="npm version">
+  <img src="https://img.shields.io/bundlephobia/minzip/md-fusion?style=flat-square&color=38bd24" alt="size">
+  <img src="https://img.shields.io/npm/dt/md-fusion.svg?style=flat-square&color=success&color=38bd24" alt="npm downloads">
+  <img src="https://img.shields.io/github/license/mgks/md-fusion.svg?style=flat-square&color=blue" alt="license">
+</p>
 
 A lightweight Node.js library and CLI tool to bridge the gap between structured note data (JSON) and static file systems (Markdown). It seamlessly handles **YAML Frontmatter**, making it perfect for migrating content to **Obsidian**, **Notion**, or **Jekyll/Hugo** sites.
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Global Install (CLI)
@@ -20,7 +21,8 @@ npm install -g md-fusion
 npm install md-fusion
 ```
 
-## 💻 CLI Usage
+## Usage
+### CLI Usage
 
 **Convert JSON Notes to Markdown Files**
 Perfect for importing into Obsidian or Dendron.
@@ -36,7 +38,7 @@ md-fusion from-md ./my-vault/daily-note.md
 # Output: JSON object to console
 ```
 
-## 🔧 API Usage
+### API Usage
 
 ```javascript
 import { toMarkdown, fromMarkdown } from 'md-fusion';
@@ -69,7 +71,7 @@ const noteObj = fromMarkdown(md);
 console.log(noteObj.title); // "Project Idea"
 ```
 
-## 🧩 Input/Output Format
+### Input/Output Format
 
 Expects (or produces) a standard JSON Note object:
 
