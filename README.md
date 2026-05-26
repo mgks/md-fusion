@@ -4,16 +4,10 @@
 
 <p>
   <img src="https://img.shields.io/npm/v/md-fusion.svg?style=flat-square&color=d25353" alt="npm version">
-  <img src="https://img.shields.io/bundlephobia/minzip/md-fusion?style=flat-square&color=38bd24" alt="size">
-  <img src="https://img.shields.io/npm/dt/md-fusion.svg?style=flat-square&color=38bd24" alt="npm downloads">
   <img src="https://img.shields.io/github/license/mgks/md-fusion.svg?style=flat-square&color=blue" alt="license">
 </p>
 
 A lightweight Node.js library and CLI tool to bridge the gap between structured note data (JSON) and static Markdown files. It handles **YAML Frontmatter** bidirectionally, making it ideal for migrating content to **Obsidian**, **Notion**, or **Jekyll / Hugo** sites.
-
-## What's New in v0.2.0
-
-*   **Optional date fields:** `created` and `updated` in the `Note` type are now optional (`?`). `fromMarkdown()` returns `undefined` for these fields when they are absent from the Frontmatter instead of defaulting to today's date. Consumer apps can apply their own fallbacks (e.g. file last-modified), giving you full control over timestamps.
 
 ## Installation
 
