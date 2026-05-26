@@ -42,8 +42,8 @@ export function fromMarkdown(mdContent: string): Note {
     title: data.title || 'Untitled',
     content: htmlContent,
     tags: data.tags || [],
-    created: data.created || new Date().toISOString(),
-    updated: data.updated || new Date().toISOString(),
+    created: data.created,
+    updated: data.updated,
     ...data // Include any extra fields found in YAML
   };
 }
