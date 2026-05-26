@@ -1,6 +1,6 @@
 {
   "name": "md-fusion",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Convert notes between HTML/JSON and Markdown with YAML Frontmatter. Ideal for Notion/Obsidian migrations.",
   "type": "module",
   "bin": {
