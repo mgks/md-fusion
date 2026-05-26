@@ -1,12 +1,42 @@
 import TurndownService from 'turndown';
 import { marked } from 'marked';
-import matter from 'gray-matter';
+import yaml from 'js-yaml';
 import { Note } from './types.js';
 
 const turndownService = new TurndownService({
   headingStyle: 'atx',
   codeBlockStyle: 'fenced'
 });
+
+// ---------------------------------------------------------------------------
+// Tiny eval-free frontmatter helpers (replaces gray-matter)
+// ---------------------------------------------------------------------------
+
+/** Parse a Markdown string that may begin with a YAML frontmatter block. */
+function parseFrontmatter(md: string): { data: Record<string, any>; content: string } {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(md);
+  if (!match) return { data: {}, content: md };
+  try {
+    const data = (yaml.load(match[1] ?? '') as Record<string, any>) ?? {};
+    return { data, content: match[2] ?? '' };
+  } catch {
+    return { data: {}, content: md };
+  }
+}
+
+/** Serialise a Markdown body + metadata object back to a frontmatter string. */
+function stringifyFrontmatter(body: string, data: Record<string, any>): string {
+  // Drop undefined values so the YAML block stays clean
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  const yamlStr = yaml.dump(clean, { lineWidth: -1 });
+  return `---\n${yamlStr}---\n${body}`;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Convert a Note object (HTML content) into a Markdown string with YAML Frontmatter.
@@ -16,27 +46,23 @@ export function toMarkdown(note: Note): string {
   const markdownBody = turndownService.turndown(note.content || '');
 
   // 2. Separate 'content' from the rest of the metadata
-  // This solves both errors:
-  // - No duplicate keys (we aren't defining object literals manually)
-  // - No 'delete' operator needed (we just exclude it from the new object)
   const { content, ...frontmatter } = note;
 
-  // 3. Combine using gray-matter stringify
-  return matter.stringify(markdownBody, frontmatter);
+  // 3. Combine using our eval-free stringify helper
+  return stringifyFrontmatter(markdownBody, frontmatter);
 }
 
 /**
- * Convert a Markdown string (with Frontmatter) into a Note object (HTML content).
+ * Convert a Markdown string (with optional Frontmatter) into a Note object.
+ * `created` and `updated` are `undefined` when absent from the Frontmatter —
+ * callers should apply their own date fallback (e.g. file.lastModified).
  */
 export function fromMarkdown(mdContent: string): Note {
   // 1. Parse Frontmatter
-  const parsed = matter(mdContent);
-  const data = parsed.data as any;
+  const { data, content: mdBody } = parseFrontmatter(mdContent);
 
   // 2. Convert Markdown body to HTML
-  // Ensure we await/handle marked properly if using async version, 
-  // but standard 'marked.parse' is synchronous in v11+ with default settings.
-  const htmlContent = marked.parse(parsed.content) as string;
+  const htmlContent = marked.parse(mdBody) as string;
 
   return {
     title: data.title || 'Untitled',
