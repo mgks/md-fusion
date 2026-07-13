@@ -50,7 +50,7 @@
   "dependencies": {
     "commander": "^11.1.0",
     "dayjs": "^1.11.20",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.2",
     "marked": "^11.2.0",
     "turndown": "^7.2.4"
   },

@@ -78,6 +78,59 @@ test('assetFilename: strips query/hash, lowercases, replaces unsafe chars', () =
   assert.equal(assetFilename('foo'), 'foo');              // already safe
 });
 
+test('toMarkdown: GFM task-list checkboxes survive the HTML -> Markdown trip', () => {
+  const html = `<ul>
+    <li><input type="checkbox" checked="checked"/> Walk the dog</li>
+    <li><input type="checkbox"/> Buy milk</li>
+    <li><input type="checkbox" checked/> Pay rent</li>
+  </ul>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  assert.match(md, /\[x\] Walk the dog/);
+  assert.match(md, /\[ \] Buy milk/);
+  assert.match(md, /\[x\] Pay rent/);
+});
+
+test('toMarkdown: GFM markers handle bare checked attribute (no value)', () => {
+  const html = `<ul><li><input type="checkbox" checked/> Done</li></ul>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  assert.match(md, /\[x\] Done/);
+  assert.doesNotMatch(md, /\[ \]/);
+});
+
+test('toMarkdown: GFM markers handle alternative quoting (single-quoted type)', () => {
+  const html = `<ul><li><input type='checkbox' checked='checked'/> task</li></ul>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  assert.match(md, /\[x\] task/);
+});
+
+test('toMarkdown: GFM markers handle attribute order swapped (checked before type)', () => {
+  const html = `<ul><li><input checked type="checkbox"/> item</li></ul>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  assert.match(md, /\[x\] item/);
+});
+
+test('toMarkdown: non-checkbox <input> elements are left alone', () => {
+  const html = `<form><input type="text" name="x"></form>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  // The text input round-trips — turndown keeps <input> but our preprocess
+  // did not match it because type != checkbox.
+  assert.doesNotMatch(md, /\[ \]/);
+  assert.doesNotMatch(md, /\[x\]/);
+});
+
+test('toMarkdown: round-trip Keep checklist through Markdown preserves unchecked / checked', () => {
+  // This is what NotesMigrator's Keep -> Markdown export used to drop.
+  // After the GFM preprocess, both states survive and then fromMarkdown
+  // re-renders them with the same markers.
+  const html = `<ul>
+    <li><input type="checkbox" checked="true"/> Walk dog</li>
+    <li><input type="checkbox"/> Buy milk</li>
+  </ul>`;
+  const md = toMarkdown({ title: 'T', content: html });
+  assert.match(md, /\[x\] Walk dog/);
+  assert.match(md, /\[ \] Buy milk/);
+});
+
 test('safeFilename: dedupes collisions via -<n> suffix', () => {
   const taken = new Set();
   assert.equal(safeFilename('Shopping', taken), 'shopping.md');

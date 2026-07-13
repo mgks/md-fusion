@@ -13,6 +13,60 @@ const turndownService = new TurndownService({
 });
 
 // ---------------------------------------------------------------------------
+// GFM task-list preprocessing
+// ---------------------------------------------------------------------------
+
+// Match `<input type="checkbox">` (with or without `checked`, with any
+// attribute order, single or double quotes, self-closing or open).
+const CHECKBOX_INPUT_RE = /<input\b[^>]*?\btype\s*=\s*(["']?)checkbox\1[^>]*>/gi;
+
+// Replace HTML checkbox inputs with GFM task-list markers (`[ ]` or `[x]`).
+// Idempotent and side-effect-free outside the <input> matches it covers.
+// We always emit `[ ]` when `checked` is absent (the HTML boolean attribute
+// semantics treat presence as true, regardless of value).
+function gfmTaskListPreprocess(html: string): string {
+  if (!html) return html;
+  return html.replace(CHECKBOX_INPUT_RE, (match) => {
+    // We strip the `<input ...>` tag and look at attributes; turndown never
+    // sees the input so it doesn't try to render an inline element.
+    const attrs = match;
+    const isChecked = /\bchecked(\s*=\s*(["'])(?:checked|true|\2)?\2)?/i.test(attrs)
+      || /\bchecked\s*=\s*(?!false|0)/i.test(attrs);
+    // `[x] ` is followed by a space so turndown's list-item rule produces
+    // a clean `- [x] text` output rather than `-[x] text`.
+    return isChecked ? '[x] ' : '[ ] ';
+  });
+}
+
+// turndown 7.x escapes literal `[` and `]` in text content (see its
+// `markdownEscapes` table in lib/turndown.cjs.js). That breaks GFM task
+// list markers — `\[x\]` would render as the literal text `[x]`. We
+// know exactly which brackets are ours (they were inserted by
+// gfmTaskListPreprocess), so we un-escape them in the post-turndown
+// markdown. Implementation note: a line-by-line string scan is clearer
+// than fighting the regex-escape meta layers.
+function unescapeGfmTaskMarkers(md: string): string {
+  if (!md) return md;
+  // The escaped form turndown emits is exactly:
+  //   \<bracket><state>\<bracket><space>
+  // (literal `\`, literal `[`, `x` or space, literal `\`, literal `]`,
+  // space). Single occurrence per line is the GFM contract for list-
+  // item task markers.
+  return md.split('\n').map((line) => {
+    const open = line.indexOf('\\[');
+    if (open === -1) return line;
+    const state = line.charAt(open + 2);
+    if (state !== 'x' && state !== ' ') return line;
+    const close = line.indexOf('\\]', open + 3);
+    if (close !== open + 3) return line;          // require \[x\] or \[ \]
+    // Replace 5 chars (`\[x\]` or `\[ ]`) with 3 chars (`[x]` or `[ ]`).
+    // `close` is the index of the leading `\`; we slice from `close + 2`
+    // (which is the char after `]`, usually a space we want to keep).
+    return line.slice(0, open) + '[' + state + ']' + line.slice(close + 2);
+  }).join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // YAML frontmatter helpers (kept eval-free — no gray-matter)
 // ---------------------------------------------------------------------------
 
@@ -162,7 +216,13 @@ export function toMarkdown(note: Note, opts: { assets?: Assets } = {}): string {
       });
   }
 
-  const markdownBody = turndownService.turndown(html);
+  // GFM task-list: turn checkbox <input> into a `[ ]` / `[x]` marker that
+  // turndown's default list-item rule naturally renders as `- [ ] text` /
+  // `- [x] text`. Obsidian, GitHub, VS Code, and most other MD renderers
+  // understand this GFM extension.
+  html = gfmTaskListPreprocess(html);
+
+  const markdownBody = unescapeGfmTaskMarkers(turndownService.turndown(html));
   const { content: _content, ...frontmatter } = note;
   return stringifyFrontmatter(markdownBody, frontmatter);
 }
