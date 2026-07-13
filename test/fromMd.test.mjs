@@ -87,3 +87,19 @@ body`;
   assert.equal(note.status, 'draft');
   assert.equal(note.custom, 'hello');
 });
+
+test('fromMarkdown: ENEX-specific tags (<en-todo>, <en-media>, <en-note>) survive the sanitiser', () => {
+  // enex-io generates <en-todo/> from <input type="checkbox"> and <en-media>
+  // for image references; markdown authors sometimes hand-edit these in
+  // their .md files. The sanitiser keeps them intact while still dropping
+  // <script>/<iframe>/on* attrs.
+  const md = `<ul>
+<li><en-todo checked="true"/> Walk dog</li>
+<li><en-todo/> Buy milk</li>
+</ul>
+<div><en-media type="image/png" hash="abc"/></div>`;
+  const note = fromMarkdown(`---\ntitle: T\n---\n${md}`);
+  assert.match(note.content, /<en-todo checked="true"\/>/);
+  assert.match(note.content, /<en-todo\/>/);
+  assert.match(note.content, /<en-media [^>]*type="image\/png"/);
+});

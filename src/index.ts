@@ -96,9 +96,9 @@ export function assetFilename(src: string, fallback = 'asset'): string {
 // conservative because md-fusion's output is frequently re-emitted into
 // ENEX files that Apple Notes imports verbatim.
 const ALLOWED_TAGS = new Set([
-  'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3', 'h4',
-  'h5', 'h6', 'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 'span', 'strong',
-  'u', 'ul'
+  'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'en-media', 'en-note',
+  'en-todo', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'img', 'li',
+  'ol', 'p', 'pre', 'span', 'strong', 'u', 'ul'
 ]);
 const SCRIPT_LIKE = /(script|style|iframe|object|embed|link)/i;
 const SCRIPT_LIKE_PAIR = /<(script|style|iframe|object|embed)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
@@ -116,7 +116,9 @@ function sanitizeHtml(html: string): string {
     .replace(ON_ATTR, '')
     .replace(JS_URI, '$1="#"')
     // Drop any remaining tags not in the allowlist (preserving their text).
-    .replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (m, tag: string) => {
+    // Allow hyphens in tag names so ENEX-specific tags like <en-todo> and
+    // <en-media> survive when they are on the allow-list.
+    .replace(/<\/?([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*>/g, (m, tag: string) => {
       if (ALLOWED_TAGS.has(tag.toLowerCase())) return m;
       // Drop the tag but keep nothing inside for known dangerous ones;
       // keep text inside for any others.
