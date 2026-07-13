@@ -1,4 +1,0 @@
----
-title: B
----
-b body
