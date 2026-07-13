@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "npm run build && npm test",
-    "lint": "xo",
+    "lint": "tsc --noEmit",
     "test": "node --import=tsx --test --test-concurrency=1 test/*.test.mjs"
   },
   "keywords": [
@@ -60,17 +60,6 @@
     "@types/turndown": "^5.0.6",
     "tsup": "^8.5.1",
     "tsx": "^4.22.3",
-    "typescript": "^5.9.3",
-    "xo": "^0.56.0"
-  },
-  "overrides": {
-    "minimatch": ">=9.0.7"
-  },
-  "xo": {
-    "prettier": true,
-    "rules": {
-      "unicorn/filename-case": "off",
-      "import/extensions": "off"
-    }
+    "typescript": "^5.9.3"
   }
 }
