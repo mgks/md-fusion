@@ -7,5 +7,10 @@ export interface Note {
   // Frontmatter extras
   slug?: string;
   status?: string;
-  [key: string]: any; 
+  [key: string]: any;
 }
+
+// Anything import that bypasses our sanitiser. Marked may emit HTML we don't
+// want landing in ENEX files; the sanitiser in fromMarkdown() keeps an
+// allow-list (see ALLOWED_TAGS).
+export const __allow_untyped_frontmatter = true;
