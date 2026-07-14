@@ -137,4 +137,5 @@ dist
 
 # genctx
 genctx.config.json
-genctx.context.mdtest/tmp/
+genctx.context.md
+test/tmp/
